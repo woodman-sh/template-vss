@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2024-11-14T14:12:29Z</date>
+    <groups>
+        <group>
+            <name>VSS Windows</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template VSS Windows</template>
+            <name>Template VSS Windows</name>
+            <groups>
+                <group>
+                    <name>VSS Windows</name>
+                </group>
+            </groups>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>VSS discovery</name>
+                    <key>vfs.vss.discovery</key>
+                    <delay>6h</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Number of copies on [{#DISKNAME}]</name>
+                            <key>vfs.vss.count[{#DISKNAME}]</key>
+                            <delay>6h</delay>
+                            <history>365d</history>
+                            <units>copies</units>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}=0</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{last()}&gt;0</recovery_expression>
+                                    <name>[{#DISKNAME}] Shadow copies not found</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Date of newest copy [{#DISKNAME}]</name>
+                            <key>vfs.vss.newest[{#DISKNAME}]</key>
+                            <delay>6h</delay>
+                            <history>365d</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{nodata(72h)}=1</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{nodata(72h)}=0</recovery_expression>
+                                    <name>[{#DISKNAME}] Last shadow copy older than 72 hours</name>
+                                    <priority>WARNING</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>[{#DISKNAME}] Shadow copies not found</name>
+                                            <expression>{Template VSS Windows:vfs.vss.count[{#DISKNAME}].last()}=0</expression>
+                                            <recovery_expression>{Template VSS Windows:vfs.vss.count[{#DISKNAME}].last()}&gt;0</recovery_expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Date of oldest copy [{#DISKNAME}]</name>
+                            <key>vfs.vss.oldest[{#DISKNAME}]</key>
+                            <delay>6h</delay>
+                            <history>365d</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+        </template>
+    </templates>
+</zabbix_export>
