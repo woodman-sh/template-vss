@@ -22,6 +22,6 @@ The template allows tracking of the following parameters:
 1. **Copy scripts**: Transfer the scripts from the scripts folder to the host where Zabbix Agent is installed.
 2. **Configure settings**: Add UserParameter entries to the Zabbix Agent configuration file.
 3. **Restart the agent**: Update the agent configuration by restarting the Zabbix Agent.
-4. **Import the template**: Upload the 'Template VSS Windows' file to the Zabbix server and attach it to the desired host.
-
+4. **Import the template**: Upload the 'Template VSS Windows' file to the Zabbix server and attach it to the host.
+##
 If you have any questions or suggestions for improving the template, please create an Issue on GitHub.
