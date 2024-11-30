@@ -11,11 +11,12 @@ The template allows tracking of the following parameters:
 - **Number of shadow copies** on each disk.
 - **Date and time of the oldest** shadow copy.
 - **Date and time of the newest** shadow copy.
+- **Date and time of the newest** in UNIX format.
 
 ### Triggers
 
 - **[{#DISKNAME}] Shadow copies not found**: triggers if the number of shadow copies is zero.
-- **[{#DISKNAME}] Last shadow copy older than 72 hours**: triggers if the newest copy is older than 3 days (depends on the first trigger).
+- **[{#DISKNAME}] Last shadow copy older than 72 hours**: triggers if the newest copy is older than 3 days.
 ##
 ### Installation
 
