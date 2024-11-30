@@ -4,59 +4,83 @@ zabbix_export:
     - uuid: a59effd9857c47e98d55914727bf62c5
       name: 'VSS Windows'
   templates:
-    - uuid: a039cca84ac745a399b78adfe80deae0
-      template: 'Template VSS Windows'
-      name: 'Template VSS Windows'
+    - uuid: ca14619af9b5414f810fe390135739d9
+      template: 'Template VSS Windows v2'
+      name: 'Template VSS Windows v2'
       groups:
         - name: 'VSS Windows'
       discovery_rules:
-        - uuid: 6aee3562b24e4b2890d1712f6d908f6a
+        - uuid: 9b0a28c869a34400b295197ee04c79e8
           name: 'VSS discovery'
           key: vfs.vss.discovery
-          delay: 6h
+          delay: 1h
           lifetime: 31d
           enabled_lifetime_type: DISABLE_AFTER
           enabled_lifetime: 30d
           item_prototypes:
-            - uuid: 9b9d23c30ff14904b2541edbe41e782a
+            - uuid: f89671886b4b414d83fcd610ee91d009
               name: 'Number of copies on [{#DISKNAME}]'
               key: 'vfs.vss.count[{#DISKNAME}]'
-              delay: 6h
+              delay: 1h
               history: 365d
               units: copies
               timeout: 15s
               trigger_prototypes:
-                - uuid: ebd3341bdf204997a571eb371db6cc9d
-                  expression: 'last(/Template VSS Windows/vfs.vss.count[{#DISKNAME}])=0'
+                - uuid: e5c94d2f03124f6e934e6f53bf20d316
+                  expression: 'last(/Template VSS Windows v2/vfs.vss.count[{#DISKNAME}])=0'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'last(/Template VSS Windows/vfs.vss.count[{#DISKNAME}])>0'
+                  recovery_expression: 'last(/Template VSS Windows v2/vfs.vss.count[{#DISKNAME}])>0'
                   name: '[{#DISKNAME}] Shadow copies not found'
                   priority: WARNING
-            - uuid: cf4a9c8acb0b49e287d3a6e4759e9908
+                  manual_close: 'YES'
+            - uuid: 4a37e2f5b9de4ac3b6e3bf8a61f14fa5
               name: 'Date of newest copy [{#DISKNAME}]'
               key: 'vfs.vss.newest[{#DISKNAME}]'
-              delay: 6h
+              delay: 1h
               history: 365d
               value_type: TEXT
               trends: '0'
               timeout: 15s
-              trigger_prototypes:
-                - uuid: 9636af8c46c64a4f8f5493837e392689
-                  expression: 'nodata(/Template VSS Windows/vfs.vss.newest[{#DISKNAME}],72h)=1'
-                  recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'nodata(/Template VSS Windows/vfs.vss.newest[{#DISKNAME}],72h)=0'
-                  name: '[{#DISKNAME}] Last shadow copy older than 72 hours'
-                  priority: WARNING
-                  dependencies:
-                    - name: '[{#DISKNAME}] Shadow copies not found'
-                      expression: 'last(/Template VSS Windows/vfs.vss.count[{#DISKNAME}])=0'
-                      recovery_expression: 'last(/Template VSS Windows/vfs.vss.count[{#DISKNAME}])>0'
-            - uuid: 68a09bb8c0c8467c83098e5907d6a699
+            - uuid: 7faaca0ac1fe49f882e0ffa9f4c018bf
               name: 'Date of oldest copy [{#DISKNAME}]'
               key: 'vfs.vss.oldest[{#DISKNAME}]'
-              delay: 6h
+              delay: 1h
               history: 365d
               value_type: TEXT
               trends: '0'
               timeout: 15s
+            - uuid: 78fc13e4c5774832aa50940f87467a4c
+              name: 'Unix timestamp of newest copy [{#DISKNAME}]'
+              key: 'vfs.vss.unix[{#DISKNAME}]'
+              delay: 1h
+              history: 365d
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var dateStr = value;
+                      
+                      var date = new Date(dateStr);
+                      
+                      if (isNaN(date.getTime())) {
+                          return 0; 
+                      }
+                      
+                      return Math.floor(date.getTime() / 1000);
+                      
+              timeout: 15s
+              trigger_prototypes:
+                - uuid: dae66650ab2743088285dab4f0fdb185
+                  expression: 'last(/Template VSS Windows v2/vfs.vss.unix[{#DISKNAME}])<(now()-259200)'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Template VSS Windows v2/vfs.vss.unix[{#DISKNAME}])>(now()-259200)'
+                  name: '[{#DISKNAME}] Last shadow copy older than 72 hours'
+                  priority: WARNING
+                  manual_close: 'YES'
+                  dependencies:
+                    - name: '[{#DISKNAME}] Shadow copies not found'
+                      expression: 'last(/Template VSS Windows v2/vfs.vss.count[{#DISKNAME}])=0'
+                      recovery_expression: 'last(/Template VSS Windows v2/vfs.vss.count[{#DISKNAME}])>0'
           timeout: 15s
